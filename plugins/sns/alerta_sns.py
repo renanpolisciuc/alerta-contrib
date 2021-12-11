@@ -37,18 +37,6 @@ class SnsTopicPublisher(PluginBase):
                 'Failed to connect to SNS topic %s - check AWS credentials and region', AWS_SNS_TOPIC)
             raise RuntimeError
 
-        try:
-            response = self.connection.create_topic(AWS_SNS_TOPIC)
-        except boto.exception.BotoServerError as e:
-            LOG.error('Error creating SNS topic %s: %s', AWS_SNS_TOPIC, e)
-            raise RuntimeError
-
-        try:
-            self.topic_arn = response['CreateTopicResponse']['CreateTopicResult']['TopicArn']
-        except KeyError:
-            LOG.error('Failed to get SNS TopicArn for %s', AWS_SNS_TOPIC)
-            raise RuntimeError
-
         super(SnsTopicPublisher, self).__init__(name)
 
         LOG.info('Configured SNS publisher on topic "%s"', self.topic_arn)
