@@ -1,6 +1,5 @@
 
-import boto.exception
-import boto.sns
+import boto3
 import logging
 import os
 
@@ -13,33 +12,22 @@ from alerta.plugins import PluginBase
 LOG = logging.getLogger('alerta.plugins.sns')
 
 DEFAULT_AWS_REGION = 'eu-west-1'
-DEFAULT_AWS_SNS_TOPIC = 'notify'
 
 AWS_REGION = os.environ.get('AWS_REGION') or app.config.get(
     'AWS_REGION', DEFAULT_AWS_REGION)
-AWS_SNS_TOPIC = os.environ.get('AWS_SNS_TOPIC') or app.config.get(
-    'AWS_SNS_TOPIC', DEFAULT_AWS_SNS_TOPIC)
+AWS_SNS_TOPIC_ARN = os.environ.get('AWS_SNS_TOPIC_ARN') or app.config.get(
+    'AWS_SNS_TOPIC_ARN', "")
 
 
 class SnsTopicPublisher(PluginBase):
 
     def __init__(self, name=None):
-        try:
-            self.connection = boto.sns.connect_to_region(
-                region_name=AWS_REGION
-            )
-        except Exception as e:
-            LOG.error('Error connecting to SNS topic %s: %s', AWS_SNS_TOPIC, e)
-            raise RuntimeError
 
-        if not self.connection:
-            LOG.error(
-                'Failed to connect to SNS topic %s - check AWS credentials and region', AWS_SNS_TOPIC)
-            raise RuntimeError
+        self.client = boto3.client('sns')
 
         super(SnsTopicPublisher, self).__init__(name)
 
-        LOG.info('Configured SNS publisher on topic "%s"', self.topic_arn)
+        LOG.info('Configured SNS publisher on topic "%s"', AWS_SNS_TOPIC_ARN)
 
     def pre_receive(self, alert):
         return alert
@@ -47,11 +35,11 @@ class SnsTopicPublisher(PluginBase):
     def post_receive(self, alert):
 
         LOG.info('Sending message %s to SNS topic "%s"',
-                 alert.get_id(), self.topic_arn)
+                 alert.get_id(), AWS_SNS_TOPIC_ARN)
         LOG.debug('Message: %s', alert.get_body())
 
-        response = self.connection.publish(
-            topic=self.topic_arn, message=alert.get_body())
+        response = self.client.publish(
+            TopicArn=AWS_SNS_TOPIC_ARN, message=alert.get_body())
         LOG.debug('Response: %s', response)
 
     def status_change(self, alert, status, text):

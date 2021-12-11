@@ -37,7 +37,7 @@ AWS_SECRET_ACCESS_KEY = ''  # default="not set"
 
 ```python
 AWS_REGION = 'eu-west-1"'  # default="eu-west-1"
-AWS_SNS_TOPIC = 'notify'
+AWS_SNS_TOPIC_ARN = 'arn:...notify'
 ```
 
 Troubleshooting
