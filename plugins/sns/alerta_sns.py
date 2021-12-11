@@ -15,10 +15,10 @@ LOG = logging.getLogger('alerta.plugins.sns')
 DEFAULT_AWS_REGION = 'eu-west-1'
 DEFAULT_AWS_SNS_TOPIC = 'notify'
 
-AWS_REGION = os.environ.get('AWS_REGION') or app.config.get('AWS_REGION', DEFAULT_AWS_REGION)
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID') or app.config.get('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY') or app.config.get('AWS_SECRET_ACCESS_KEY')
-AWS_SNS_TOPIC = os.environ.get('AWS_SNS_TOPIC') or app.config.get('AWS_SNS_TOPIC', DEFAULT_AWS_SNS_TOPIC)
+AWS_REGION = os.environ.get('AWS_REGION') or app.config.get(
+    'AWS_REGION', DEFAULT_AWS_REGION)
+AWS_SNS_TOPIC = os.environ.get('AWS_SNS_TOPIC') or app.config.get(
+    'AWS_SNS_TOPIC', DEFAULT_AWS_SNS_TOPIC)
 
 
 class SnsTopicPublisher(PluginBase):
@@ -26,16 +26,15 @@ class SnsTopicPublisher(PluginBase):
     def __init__(self, name=None):
         try:
             self.connection = boto.sns.connect_to_region(
-                region_name=AWS_REGION,
-                aws_access_key_id=AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+                region_name=AWS_REGION
             )
         except Exception as e:
             LOG.error('Error connecting to SNS topic %s: %s', AWS_SNS_TOPIC, e)
             raise RuntimeError
 
         if not self.connection:
-            LOG.error('Failed to connect to SNS topic %s - check AWS credentials and region', AWS_SNS_TOPIC)
+            LOG.error(
+                'Failed to connect to SNS topic %s - check AWS credentials and region', AWS_SNS_TOPIC)
             raise RuntimeError
 
         try:
@@ -59,10 +58,12 @@ class SnsTopicPublisher(PluginBase):
 
     def post_receive(self, alert):
 
-        LOG.info('Sending message %s to SNS topic "%s"', alert.get_id(), self.topic_arn)
+        LOG.info('Sending message %s to SNS topic "%s"',
+                 alert.get_id(), self.topic_arn)
         LOG.debug('Message: %s', alert.get_body())
 
-        response = self.connection.publish(topic=self.topic_arn, message=alert.get_body())
+        response = self.connection.publish(
+            topic=self.topic_arn, message=alert.get_body())
         LOG.debug('Response: %s', response)
 
     def status_change(self, alert, status, text):
