@@ -36,10 +36,10 @@ class SnsTopicPublisher(PluginBase):
 
         LOG.info('Sending message %s to SNS topic "%s"',
                  alert.get_id(), AWS_SNS_TOPIC_ARN)
-        LOG.debug('Message: %s', alert.get_body())
+        LOG.debug('Message: %s', alert.raw_data)
 
         response = self.client.publish(
-            TopicArn=AWS_SNS_TOPIC_ARN, message=alert.get_body())
+            TopicArn=AWS_SNS_TOPIC_ARN, message=alert.raw_data)
         LOG.debug('Response: %s', response)
 
     def status_change(self, alert, status, text):
