@@ -40,7 +40,7 @@ class SnsTopicPublisher(PluginBase):
         LOG.debug('Message: %s', alert.get_body())
 
         response = self.client.publish(
-            TopicArn=AWS_SNS_TOPIC_ARN, Message=json.dumps(alert.get_body()))
+            TopicArn=AWS_SNS_TOPIC_ARN, Message=json.dumps(alert.get_body(), default=str))
         LOG.debug('Response: %s', response)
 
     def status_change(self, alert, status, text):
