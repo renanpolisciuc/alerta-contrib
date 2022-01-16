@@ -18,7 +18,7 @@ setup(
     zip_safe=True,
     entry_points={
         'alerta.webhooks': [
-            'sentry = alerta_influxdb2:InfluxDB2Webhook'
+            'influxdb2 = alerta_influxdb2:InfluxDB2Webhook'
         ]
     }
 )
