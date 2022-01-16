@@ -1,10 +1,6 @@
-from typing import Any, Dict
-from flask import current_app
-
-from alerta.models.alarms.alerta import SEVERITY_MAP
 from alerta.models.alert import Alert
 
-from . import WebhookBase
+from alerta.webhooks import WebhookBase
 
 
 class InfluxDB2Webhook(WebhookBase):
